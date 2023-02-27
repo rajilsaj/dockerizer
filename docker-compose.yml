@@ -1,0 +1,56 @@
+version: '3'
+
+networks:
+  wpsite:
+volumes:
+   db_data:
+
+
+services:
+
+  db:
+    image: mariadb
+    platform: linux/amd64
+    user: root
+    volumes:
+      - ./db_data:/Users/rajilsaj/Documents/23-WWW/pem-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: pem
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 12345
+    ports:
+      - '3306:3306'
+    networks:
+      wpsite:
+        aliases:
+          - db
+
+
+  wordpress:
+    image: wordpress:latest
+    platform: linux/amd64
+    user: root
+    links:
+      - db:mysql
+    depends_on:
+      - db
+    ports:
+      - '8000:80'
+    restart: always
+    working_dir: /Users/rajilsaj/Documents/23-WWW/pem-container
+    volumes:
+      - ./wp-content:/Users/rajilsaj/Documents/23-WWW/pem-container/wp-content
+      - ./uploads.ini:/Users/rajilsaj/Documents/23-WWW/pem-container/wp-content/uploads.ini
+
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: 12345
+      WORDPRESS_DB_NAME: pem
+    networks:
+      wpsite:
+        aliases:
+          - wordpress
+
